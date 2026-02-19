@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   FlatList,
@@ -11,11 +11,13 @@ import JobCard from '../../components/JobCard';
 import SearchBar from '../../components/SearchBar';
 import ThemeToggle from '../../components/ThemeToggle';
 import styles from './JobFinderStyles';
+import { useThemeContext } from '../../context/ThemeContext';
 
 const JobFinderScreen = () => {
   const { jobs, setJobs } = useJobs();
   const [search, setSearch] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const { colors } = useThemeContext(); // ✅ theme colors
 
   const loadJobs = async () => {
     const data = await fetchJobsFromAPI();
@@ -39,15 +41,26 @@ const JobFinderScreen = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ThemeToggle />
-      <SearchBar search={search} setSearch={setSearch} />
+
+      <SearchBar
+        search={search}
+        setSearch={setSearch}
+        placeholderTextColor={colors.text}      // ✅ dark mode placeholder visible
+        inputBackgroundColor={colors.card}      // ✅ input adapts to theme
+        inputTextColor={colors.text}            // ✅ input text adapts to theme
+      />
 
       <FlatList
         data={filteredJobs}
         keyExtractor={item => item.id}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]} // ✅ refresh spinner adapts
+          />
         }
         renderItem={({ item }) => <JobCard job={item} />}
       />

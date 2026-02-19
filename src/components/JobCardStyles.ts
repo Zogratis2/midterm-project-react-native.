@@ -17,13 +17,12 @@ export default StyleSheet.create({
     fontSize: 16,
   },
   button: {
-    backgroundColor: '#007bff',
     padding: 10,
     marginTop: 8,
     alignItems: 'center',
     borderRadius: 5,
   },
   buttonText: {
-    color: '#fff',
+    // remove color here — use colors.text from ThemeContext
   },
 });

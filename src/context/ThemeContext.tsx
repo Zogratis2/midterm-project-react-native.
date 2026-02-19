@@ -5,6 +5,7 @@ interface ThemeContextType {
   theme: any;
   isDark: boolean;
   toggleTheme: () => void;
+  colors: any; // ⭐ added earlier
 }
 
 const ThemeContext = createContext<ThemeContextType>({} as ThemeContextType);
@@ -14,9 +15,22 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const toggleTheme = () => setIsDark(prev => !prev);
 
+  // ⭐ FIX: fallback to prevent TypeScript error
+  const selectedTheme = isDark ? darkTheme : lightTheme;
+  const colors = (selectedTheme as any).colors || {
+    text: isDark ? '#ffffff' : '#000000',
+    background: isDark ? '#000000' : '#ffffff',
+    card: isDark ? '#333333' : '#f0f0f0',
+  };
+
   return (
     <ThemeContext.Provider
-      value={{ theme: isDark ? darkTheme : lightTheme, isDark, toggleTheme }}
+      value={{
+        theme: selectedTheme,
+        isDark,
+        toggleTheme,
+        colors, // ⭐ ← no more error
+      }}
     >
       {children}
     </ThemeContext.Provider>
