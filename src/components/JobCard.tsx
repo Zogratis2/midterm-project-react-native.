@@ -23,9 +23,14 @@ const JobCard: React.FC<Props> = ({ job, isSaved }) => {
 
       <Pressable
         style={styles.button}
-        onPress={() =>
-          isSaved ? removeJob(job.id) : saveJob(job)
-        }
+        onPress={() => {
+          if (isSaved) {
+            removeJob(job.id);
+          } else {
+            saveJob(job);
+            navigation.navigate('SavedJobs'); // ⭐ Added this
+          }
+        }}
       >
         <Text style={styles.buttonText}>
           {isSaved ? 'Remove Job' : 'Save Job'}

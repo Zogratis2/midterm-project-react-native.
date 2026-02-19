@@ -14,10 +14,36 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator = () => {
   return (
-    <Stack.Navigator>
-      <Stack.Screen name="JobFinder" component={JobFinderScreen} />
-      <Stack.Screen name="SavedJobs" component={SavedJobsScreen} />
-      <Stack.Screen name="ApplicationForm" component={ApplicationFormScreen} />
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: true,                 // ✅ ADDED: makes sure header appears
+        animation: 'slide_from_right',      // ✅ ADDED: smooth transition
+        gestureEnabled: true,               // ✅ ADDED: allow swipe back
+      }}
+    >
+      <Stack.Screen
+        name="JobFinder"
+        component={JobFinderScreen}
+        options={{
+          title: 'Job Finder',              // ✅ ADDED
+        }}
+      />
+
+      <Stack.Screen
+        name="SavedJobs"
+        component={SavedJobsScreen}
+        options={{
+          title: 'Saved Jobs',              // ✅ ADDED
+        }}
+      />
+
+      <Stack.Screen
+        name="ApplicationForm"
+        component={ApplicationFormScreen}
+        options={{
+          title: 'Application Form',        // ✅ ADDED
+        }}
+      />
     </Stack.Navigator>
   );
 };
