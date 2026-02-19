@@ -13,13 +13,18 @@ import { Formik } from 'formik';
 import { applicationValidationSchema } from '../../utils/validationSchema';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import styles from './ApplicationFormStyles';
+import { useThemeContext } from '../../context/ThemeContext'; // ✅ import theme
 
 const ApplicationFormScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
+  const { colors, isDark } = useThemeContext(); // ✅ get theme colors & isDark
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
+    <KeyboardAvoidingView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      behavior="padding"
+    >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View>
           <Formik
@@ -44,53 +49,78 @@ const ApplicationFormScreen = () => {
               ]);
             }}
           >
-            {({
-              handleChange,
-              handleSubmit,
-              values,
-              errors,
-              touched,
-            }) => (
+            {({ handleChange, handleSubmit, values, errors, touched }) => (
               <View>
                 <TextInput
                   placeholder="Name"
-                  style={styles.input}
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: colors.card,
+                      color: colors.text,
+                      borderColor: isDark ? '#fff' : '#000', // ✅ white in dark, black in light
+                      borderWidth: 1,
+                    },
+                  ]}
                   onChangeText={handleChange('name')}
                   value={values.name}
+                  placeholderTextColor={colors.text}
                 />
-                {touched.name && <Text>{errors.name}</Text>}
+                {touched.name && <Text style={{ color: colors.text }}>{errors.name}</Text>}
 
                 <TextInput
                   placeholder="Email"
-                  style={styles.input}
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: colors.card,
+                      color: colors.text,
+                      borderColor: isDark ? '#fff' : '#000',
+                      borderWidth: 1,
+                    },
+                  ]}
                   onChangeText={handleChange('email')}
                   value={values.email}
+                  placeholderTextColor={colors.text}
                 />
-                {touched.email && <Text>{errors.email}</Text>}
+                {touched.email && <Text style={{ color: colors.text }}>{errors.email}</Text>}
 
                 <TextInput
                   placeholder="Contact"
-                  style={styles.input}
                   keyboardType="numeric"
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: colors.card,
+                      color: colors.text,
+                      borderColor: isDark ? '#fff' : '#000',
+                      borderWidth: 1,
+                    },
+                  ]}
                   onChangeText={handleChange('contact')}
                   value={values.contact}
+                  placeholderTextColor={colors.text}
                 />
-                {touched.contact && <Text>{errors.contact}</Text>}
+                {touched.contact && <Text style={{ color: colors.text }}>{errors.contact}</Text>}
 
                 <TextInput
                   placeholder="Why should we hire you?"
                   multiline
-                  style={[styles.input, { height: 100 }]}
+                  style={[
+                    styles.input,
+                    { height: 100, backgroundColor: colors.card, color: colors.text, borderColor: isDark ? '#fff' : '#000', borderWidth: 1 },
+                  ]}
                   onChangeText={handleChange('reason')}
                   value={values.reason}
+                  placeholderTextColor={colors.text}
                 />
-                {touched.reason && <Text>{errors.reason}</Text>}
+                {touched.reason && <Text style={{ color: colors.text }}>{errors.reason}</Text>}
 
                 <Pressable
-                  style={styles.button}
+                  style={[styles.button, { backgroundColor: '#28a745' }]} // ✅ green button stays same
                   onPress={handleSubmit as any}
                 >
-                  <Text style={styles.buttonText}>Submit</Text>
+                  <Text style={[styles.buttonText, { color: '#fff' }]}>Submit</Text>
                 </Pressable>
               </View>
             )}
