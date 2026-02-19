@@ -1,15 +1,10 @@
 import React, { useState, useCallback } from 'react';
-import {
-  View,
-  FlatList,
-  RefreshControl,
-} from 'react-native';
+import { View, FlatList, RefreshControl } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { fetchJobsFromAPI } from '../../api/jobsApi';
 import { useJobs } from '../../context/JobsContext';
 import JobCard from '../../components/JobCard';
 import SearchBar from '../../components/SearchBar';
-import ThemeToggle from '../../components/ThemeToggle';
 import styles from './JobFinderStyles';
 import { useThemeContext } from '../../context/ThemeContext';
 
@@ -17,7 +12,7 @@ const JobFinderScreen = () => {
   const { jobs, setJobs } = useJobs();
   const [search, setSearch] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const { colors } = useThemeContext(); // ✅ theme colors
+  const { colors } = useThemeContext(); // ✅ get theme colors
 
   const loadJobs = async () => {
     const data = await fetchJobsFromAPI();
@@ -42,14 +37,12 @@ const JobFinderScreen = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ThemeToggle />
-
       <SearchBar
         search={search}
         setSearch={setSearch}
-        placeholderTextColor={colors.text}      // ✅ dark mode placeholder visible
-        inputBackgroundColor={colors.card}      // ✅ input adapts to theme
-        inputTextColor={colors.text}            // ✅ input text adapts to theme
+        placeholderTextColor={colors.text}
+        inputBackgroundColor={colors.card}
+        inputTextColor={colors.text}
       />
 
       <FlatList
@@ -59,7 +52,7 @@ const JobFinderScreen = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[colors.primary]} // ✅ refresh spinner adapts
+            colors={[colors.primary]}
           />
         }
         renderItem={({ item }) => <JobCard job={item} />}
