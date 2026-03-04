@@ -14,24 +14,38 @@ interface Props {
 const JobCard: React.FC<Props> = ({ job, isSaved }) => {
   const { saveJob, removeJob } = useJobs();
   const navigation = useNavigation<any>();
-  const { colors, isDark } = useThemeContext(); // ✅ get isDark
+  const { colors, isDark } = useThemeContext(); 
+
+  // Ensure there is always a valid URI for the image
+  const validImageUrl = job.image && job.image.startsWith('http') 
+    ? job.image 
+    : 'https://via.placeholder.com/150';
 
   return (
     <View
       style={[
         styles.card,
         {
-          backgroundColor: colors.card,
-          borderColor: isDark ? '#fff' : '#000', // ✅ white in dark mode, black in light
+          // Safely fallback to white/black if colors object is undefined
+          backgroundColor: colors?.card || (isDark ? '#1e1e1e' : '#ffffff'),
+          borderColor: isDark ? '#fff' : '#000', 
           borderWidth: 1,
         },
       ]}
     >
-      <Image source={{ uri: job.image }} style={styles.image} />
+      <Image source={{ uri: validImageUrl }} style={styles.image} />
 
-      <Text style={[styles.title, { color: colors.text }]}>{job.title}</Text>
-      <Text style={{ color: colors.text }}>{job.company}</Text>
-      <Text style={{ color: colors.text }}>{job.salary}</Text>
+      <Text style={[styles.title, { color: colors?.text || (isDark ? '#fff' : '#000') }]}>
+        {job.title}
+      </Text>
+      
+      <Text style={{ color: colors?.text || (isDark ? '#fff' : '#000') }}>
+        {job.company}
+      </Text>
+      
+      <Text style={{ color: colors?.text || (isDark ? '#aaa' : '#555') }}>
+        {job.salary}
+      </Text>
 
       {/* Save / Remove Button */}
       <Pressable
@@ -54,7 +68,7 @@ const JobCard: React.FC<Props> = ({ job, isSaved }) => {
 
       {/* Apply Button */}
       <Pressable
-        style={[styles.button, { backgroundColor: '#28a745' }]}
+        style={[styles.button, { backgroundColor: '#28a745', marginTop: 8 }]}
         onPress={() =>
           navigation.navigate('ApplicationForm', { fromSaved: isSaved })
         }

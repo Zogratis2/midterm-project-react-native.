@@ -8,14 +8,29 @@ export const fetchJobsFromAPI = async (): Promise<Job[]> => {
 
     if (!data?.jobs) return [];
 
-    return data.jobs.map((job: any) => ({
-      id: uuid.v4().toString(),
-      title: job.title || 'No Title',
-      company: job.company || 'Unknown Company',
-      salary: job.salary || 'Not specified',
-      location: job.location || 'Unknown',
-      image: job.company_logo || 'https://via.placeholder.com/150',
-    }));
+    return data.jobs.map((job: any) => {
+      // Create a nice salary string based on min/max and currency
+      let formattedSalary = 'Not specified';
+      if (job.minSalary && job.maxSalary) {
+        formattedSalary = `${job.currency || ''} ${job.minSalary} - ${job.maxSalary}`;
+      } else if (job.minSalary) {
+        formattedSalary = `${job.currency || ''} ${job.minSalary}+`;
+      }
+
+      // Ensure location is extracted properly from the array
+      const formattedLocation = Array.isArray(job.locations) && job.locations.length > 0 
+        ? job.locations.join(', ') 
+        : 'Unknown Location';
+
+      return {
+        id: job.guid || uuid.v4().toString(),
+        title: job.title || 'No Title',
+        company: job.companyName || 'Unknown Company',
+        salary: formattedSalary,
+        location: formattedLocation,
+        image: job.companyLogo || 'https://via.placeholder.com/150',
+      };
+    });
   } catch (error) {
     console.log('API Error:', error);
     return [];
