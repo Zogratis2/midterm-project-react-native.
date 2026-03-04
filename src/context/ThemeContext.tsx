@@ -15,12 +15,17 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const toggleTheme = () => setIsDark(prev => !prev);
 
-  // ⭐ FIX: fallback to prevent TypeScript error
   const selectedTheme = isDark ? darkTheme : lightTheme;
-  const colors = (selectedTheme as any).colors || {
-    text: isDark ? '#ffffff' : '#000000',
-    background: isDark ? '#000000' : '#ffffff',
-    card: isDark ? '#333333' : '#f0f0f0',
+  
+  // ⭐ FIX: Safely extract colors whether they are nested inside 'colors' or directly on the theme object.
+  const themeColors = selectedTheme?.colors || selectedTheme || {};
+
+  // ⭐ FIX: Apply bulletproof fallbacks for every specific property so they can never be undefined.
+  const colors = {
+    ...themeColors, // Keeps any other custom colors you have
+    text: themeColors.text || (isDark ? '#ffffff' : '#000000'),
+    background: themeColors.background || (isDark ? '#000000' : '#ffffff'),
+    card: themeColors.card || (isDark ? '#333333' : '#f0f0f0'),
   };
 
   return (
@@ -29,7 +34,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         theme: selectedTheme,
         isDark,
         toggleTheme,
-        colors, // ⭐ ← no more error
+        colors, // ⭐ ← safely guaranteed to never be undefined
       }}
     >
       {children}

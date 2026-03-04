@@ -14,7 +14,15 @@ interface Props {
 const JobCard: React.FC<Props> = ({ job, isSaved }) => {
   const { saveJob, removeJob } = useJobs();
   const navigation = useNavigation<any>();
-  const { colors, isDark } = useThemeContext(); 
+  const themeContext = useThemeContext(); 
+
+  // Safely grab colors, guaranteeing strings instead of undefined
+  const isDark = themeContext?.isDark || false;
+  const colors = themeContext?.colors || {};
+  
+  const bgColor = colors.card || (isDark ? '#1e1e1e' : '#ffffff');
+  const textColor = colors.text || (isDark ? '#ffffff' : '#000000');
+  const borderColor = colors.border || (isDark ? '#333333' : '#e0e0e0');
 
   // Ensure there is always a valid URI for the image
   const validImageUrl = job.image && job.image.startsWith('http') 
@@ -26,26 +34,17 @@ const JobCard: React.FC<Props> = ({ job, isSaved }) => {
       style={[
         styles.card,
         {
-          // Safely fallback to white/black if colors object is undefined
-          backgroundColor: colors?.card || (isDark ? '#1e1e1e' : '#ffffff'),
-          borderColor: isDark ? '#fff' : '#000', 
+          backgroundColor: bgColor,
+          borderColor: borderColor, 
           borderWidth: 1,
         },
       ]}
     >
       <Image source={{ uri: validImageUrl }} style={styles.image} />
 
-      <Text style={[styles.title, { color: colors?.text || (isDark ? '#fff' : '#000') }]}>
-        {job.title}
-      </Text>
-      
-      <Text style={{ color: colors?.text || (isDark ? '#fff' : '#000') }}>
-        {job.company}
-      </Text>
-      
-      <Text style={{ color: colors?.text || (isDark ? '#aaa' : '#555') }}>
-        {job.salary}
-      </Text>
+      <Text style={[styles.title, { color: textColor }]}>{job.title}</Text>
+      <Text style={{ color: textColor }}>{job.company}</Text>
+      <Text style={{ color: textColor }}>{job.salary}</Text>
 
       {/* Save / Remove Button */}
       <Pressable
@@ -61,7 +60,7 @@ const JobCard: React.FC<Props> = ({ job, isSaved }) => {
           }
         }}
       >
-        <Text style={[styles.buttonText, { color: '#fff' }]}>
+        <Text style={[styles.buttonText, { color: '#ffffff' }]}>
           {isSaved ? 'Remove Job' : 'Save Job'}
         </Text>
       </Pressable>
@@ -73,7 +72,7 @@ const JobCard: React.FC<Props> = ({ job, isSaved }) => {
           navigation.navigate('ApplicationForm', { fromSaved: isSaved })
         }
       >
-        <Text style={[styles.buttonText, { color: '#fff' }]}>Apply</Text>
+        <Text style={[styles.buttonText, { color: '#ffffff' }]}>Apply</Text>
       </Pressable>
     </View>
   );
