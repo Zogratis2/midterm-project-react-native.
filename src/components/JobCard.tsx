@@ -13,7 +13,7 @@ interface Props {
 }
 
 const JobCard: React.FC<Props> = ({ job, isSaved, fromSavedScreen }) => {
-  const { saveJob, removeJob } = useJobs();
+  const { saveJob, removeJob, appliedJobs } = useJobs();
   const navigation = useNavigation<any>();
   const themeContext = useThemeContext(); 
 
@@ -27,6 +27,8 @@ const JobCard: React.FC<Props> = ({ job, isSaved, fromSavedScreen }) => {
   const validImageUrl = job.image && job.image.startsWith('http') 
     ? job.image 
     : 'https://via.placeholder.com/150';
+
+  const hasApplied = appliedJobs?.includes(job.id);
 
   let buttonText = 'Save Job';
   let buttonColor = '#007bff'; 
@@ -48,11 +50,12 @@ const JobCard: React.FC<Props> = ({ job, isSaved, fromSavedScreen }) => {
   } else if (isSaved) {
     buttonText = 'Saved';
     buttonColor = '#6c757d'; 
+    // ⭐ handlePress is set to an empty function here. 
+    // Because we removed the "disabled" prop below, this empty function will safely "catch" and swallow the tap!
     handlePress = () => {}; 
   }
 
   return (
-    // ⭐ CHANGED from <View> to <Pressable> so the whole card is tappable
     <Pressable 
       style={[styles.card, { backgroundColor: bgColor, borderColor: borderColor, borderWidth: 1 }]}
       onPress={() => navigation.navigate('JobDetails', { job, isSaved, fromSavedScreen })}
@@ -62,21 +65,37 @@ const JobCard: React.FC<Props> = ({ job, isSaved, fromSavedScreen }) => {
       <Text style={{ color: textColor }}>{job.company}</Text>
       <Text style={{ color: textColor }}>{job.salary}</Text>
 
-      {/* Buttons inside the card */}
       <View style={{ marginTop: 10 }}>
+        {/* Save / Remove / Saved Button */}
         <Pressable
           style={[styles.button, { backgroundColor: buttonColor }]}
           onPress={handlePress}
-          disabled={!fromSavedScreen && isSaved}
+          // ⭐ REMOVED the disabled prop so the button intercepts the tap
         >
           <Text style={[styles.buttonText, { color: '#ffffff' }]}>{buttonText}</Text>
         </Pressable>
 
+        {/* Apply Button */}
         <Pressable
-          style={[styles.button, { backgroundColor: '#28a745', marginTop: 8 }]}
-          onPress={() => navigation.navigate('ApplicationForm', { fromSaved: isSaved })}
+          style={[
+            styles.button, 
+            { 
+              backgroundColor: hasApplied ? '#6c757d' : '#28a745', 
+              marginTop: 8,
+              opacity: hasApplied ? 0.6 : 1 
+            }
+          ]}
+          onPress={() => {
+            // ⭐ If they haven't applied, navigate. If they have, do absolutely nothing!
+            if (!hasApplied) {
+              navigation.navigate('ApplicationForm', { job, fromSaved: isSaved });
+            }
+          }}
+          // ⭐ REMOVED the disabled prop so the button intercepts the tap
         >
-          <Text style={[styles.buttonText, { color: '#ffffff' }]}>Apply</Text>
+          <Text style={[styles.buttonText, { color: '#ffffff' }]}>
+            {hasApplied ? 'Applied' : 'Apply'}
+          </Text>
         </Pressable>
       </View>
     </Pressable>

@@ -1,20 +1,26 @@
 import React from 'react';
 import { View, Text, Image, ScrollView, Pressable } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useThemeContext } from '../../context/ThemeContext';
-import styles from './JobDetailsStyles'; // ⭐ Imported your new styles here!
+import { useThemeContext } from '../../context/ThemeContext'; // Ensure this path is correct for your folders
+import { useJobs } from '../../context/JobsContext'; // Ensure this path is correct for your folders
+import styles from './JobDetailsStyles'; 
 
 const JobDetailsScreen = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
   const { colors } = useThemeContext();
+  
+  // Get appliedJobs from context
+  const { appliedJobs } = useJobs();
 
-  // Get the job data that we passed from the JobCard
   const { job, isSaved } = route.params; 
 
   const validImageUrl = job.image && job.image.startsWith('http') 
     ? job.image 
     : 'https://via.placeholder.com/150';
+
+  // Check if applied
+  const hasApplied = appliedJobs?.includes(job.id);
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -26,7 +32,6 @@ const JobDetailsScreen = () => {
         
         <View style={[styles.divider, { backgroundColor: colors.border || '#e0e0e0' }]} />
 
-        {/* Adjust these fields based on what your API actually returns */}
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Job Details</Text>
         <Text style={[styles.detailText, { color: colors.text }]}>📍 Location: {job.location || 'Remote'}</Text>
         <Text style={[styles.detailText, { color: colors.text }]}>💰 Salary: {job.salary || 'Not specified'}</Text>
@@ -39,12 +44,21 @@ const JobDetailsScreen = () => {
           {job.description || 'No detailed description available for this job.'}
         </Text>
 
-        {/* Big Apply Button at the bottom */}
+        {/* Big Apply Button (Fades out and becomes unclickable if applied) */}
         <Pressable
-          style={[styles.applyButton, { backgroundColor: '#28a745' }]}
-          onPress={() => navigation.navigate('ApplicationForm', { fromSaved: isSaved })}
+          style={[
+            styles.applyButton, 
+            { 
+              backgroundColor: hasApplied ? '#6c757d' : '#28a745',
+              opacity: hasApplied ? 0.6 : 1 // Fades it out
+            }
+          ]}
+          onPress={() => navigation.navigate('ApplicationForm', { job, fromSaved: isSaved })}
+          disabled={hasApplied} // Makes it unclickable
         >
-          <Text style={styles.applyButtonText}>Apply Now</Text>
+          <Text style={styles.applyButtonText}>
+            {hasApplied ? 'Successfully Applied' : 'Apply Now'}
+          </Text>
         </Pressable>
       </View>
     </ScrollView>

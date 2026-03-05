@@ -14,11 +14,13 @@ import { applicationValidationSchema } from '../../utils/validationSchema';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import styles from './ApplicationFormStyles';
 import { useThemeContext } from '../../context/ThemeContext'; // ✅ import theme
+import { useJobs } from '../../context/JobsContext'; // ⭐ 1. Import Jobs Context
 
 const ApplicationFormScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { colors, isDark } = useThemeContext(); // ✅ get theme colors & isDark
+  const { markJobAsApplied } = useJobs(); // ⭐ 2. Get the function from Context
 
   return (
     <KeyboardAvoidingView
@@ -35,6 +37,11 @@ const ApplicationFormScreen = () => {
                 {
                   text: 'Okay',
                   onPress: () => {
+                    // ⭐ 3. Mark the specific job as applied before navigating away!
+                    if (route.params?.job?.id) {
+                      markJobAsApplied(route.params.job.id);
+                    }
+
                     resetForm();
                     if (route.params?.fromSaved) {
                       navigation.reset({
