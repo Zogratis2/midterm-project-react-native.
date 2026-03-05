@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, Pressable } from 'react-native';
+import { View, Text, Image, Pressable, Alert } from 'react-native'; // ⭐ Added Alert here
 import { Job } from '../types/Job';
 import { useJobs } from '../context/JobsContext';
 import { useNavigation } from '@react-navigation/native';
@@ -9,7 +9,7 @@ import styles from './JobCardStyles';
 interface Props {
   job: Job;
   isSaved?: boolean;
-  fromSavedScreen?: boolean; // ⭐ Tells the card which screen it is on
+  fromSavedScreen?: boolean;
 }
 
 const JobCard: React.FC<Props> = ({ job, isSaved, fromSavedScreen }) => {
@@ -28,21 +28,38 @@ const JobCard: React.FC<Props> = ({ job, isSaved, fromSavedScreen }) => {
     ? job.image 
     : 'https://via.placeholder.com/150';
 
-  // ⭐ Smart logic for the Save/Remove button
   let buttonText = 'Save Job';
-  let buttonColor = '#007bff'; // Blue
+  let buttonColor = '#007bff'; 
   let handlePress = () => saveJob(job);
 
   if (fromSavedScreen) {
     // On the Saved Jobs screen -> Show "Remove Job"
     buttonText = 'Remove Job';
-    buttonColor = '#dc3545'; // Red
-    handlePress = () => removeJob(job.id);
+    buttonColor = '#dc3545'; 
+    
+    // ⭐ Update: Trigger a native Alert before actually removing the job
+    handlePress = () => {
+      Alert.alert(
+        'Remove Job', // The Title of the popup
+        'Are you sure you want to remove this job from your saved list?', // The message
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel', // Keeps it safe and default-styled
+          },
+          {
+            text: 'Remove',
+            style: 'destructive', // Makes the button red on iOS
+            onPress: () => removeJob(job.id), // Only remove if they press this
+          },
+        ]
+      );
+    };
   } else if (isSaved) {
     // On the Finder screen and it's already saved -> Show "Saved"
     buttonText = 'Saved';
-    buttonColor = '#6c757d'; // Gray
-    handlePress = () => {}; // Do nothing if clicked again
+    buttonColor = '#6c757d'; 
+    handlePress = () => {}; 
   }
 
   return (
@@ -56,7 +73,7 @@ const JobCard: React.FC<Props> = ({ job, isSaved, fromSavedScreen }) => {
       <Pressable
         style={[styles.button, { backgroundColor: buttonColor }]}
         onPress={handlePress}
-        disabled={!fromSavedScreen && isSaved} // Disable the button if it just says "Saved"
+        disabled={!fromSavedScreen && isSaved}
       >
         <Text style={[styles.buttonText, { color: '#ffffff' }]}>{buttonText}</Text>
       </Pressable>
