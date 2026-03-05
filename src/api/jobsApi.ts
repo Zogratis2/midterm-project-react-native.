@@ -22,6 +22,19 @@ export const fetchJobsFromAPI = async (): Promise<Job[]> => {
         ? job.locations.join(', ') 
         : 'Unknown Location';
 
+      // ⭐ 1. Grab the raw description first
+      const rawDescription = job.description || job.summary || job.content || '';
+      
+      // ⭐ 2. Clean it up! This removes all HTML tags and fixes weird symbols like &nbsp;
+      const cleanDescription = rawDescription
+        .replace(/<[^>]*>?/gm, '\n') // Replaces HTML tags with a line break to keep some spacing
+        .replace(/\n\s*\n/g, '\n\n') // Cleans up giant empty gaps
+        .replace(/&nbsp;/g, ' ')     // Fixes weird HTML spaces
+        .replace(/&amp;/g, '&')      // Fixes ampersands (&)
+        .replace(/&quot;/g, '"')     // Fixes quotes
+        .replace(/&#39;/g, "'")      // Fixes apostrophes
+        .trim();                     // Removes extra spaces at the very beginning or end
+
       return {
         id: job.guid || uuid.v4().toString(),
         title: job.title || 'No Title',
@@ -29,6 +42,8 @@ export const fetchJobsFromAPI = async (): Promise<Job[]> => {
         salary: formattedSalary,
         location: formattedLocation,
         image: job.companyLogo || 'https://via.placeholder.com/150',
+        description: cleanDescription, // ⭐ 3. Pass the squeaky-clean description to your app!
+        type: job.jobType || job.type || 'Full-time',
       };
     });
   } catch (error) {
