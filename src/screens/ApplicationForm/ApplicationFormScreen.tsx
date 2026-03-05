@@ -1,140 +1,159 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  Alert,
-  KeyboardAvoidingView,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from 'react-native';
-import { Formik } from 'formik';
-import { applicationValidationSchema } from '../../utils/validationSchema';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import styles from './ApplicationFormStyles';
-import { useThemeContext } from '../../context/ThemeContext'; // ✅ import theme
-import { useJobs } from '../../context/JobsContext'; // ⭐ 1. Import Jobs Context
+import React, { useState } from 'react';
+import { View, Text, TextInput, Pressable, ScrollView, Alert } from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import { useThemeContext } from '../../context/ThemeContext';
+import { useJobs } from '../../context/JobsContext';
+import styles from './ApplicationFormStyles'; // ⭐ Importing your clean styles!
 
 const ApplicationFormScreen = () => {
-  const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const { colors, isDark } = useThemeContext(); // ✅ get theme colors & isDark
-  const { markJobAsApplied } = useJobs(); // ⭐ 2. Get the function from Context
+  const navigation = useNavigation<any>();
+  const { colors } = useThemeContext();
+  
+  const { markJobAsApplied } = useJobs();
+  const { job } = route.params;
+
+  // Form States
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [contact, setContact] = useState('');
+  const [whyHire, setWhyHire] = useState('');
+  
+  // Error state for validation
+  const [errors, setErrors] = useState<{ 
+    name?: string; 
+    email?: string; 
+    contact?: string; 
+    whyHire?: string 
+  }>({});
+
+  const handleApply = () => {
+    let newErrors: any = {};
+
+    // 1. Name Validation
+    if (!name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+    
+    // 2. Email Validation
+    if (!email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!email.includes('@')) {
+      newErrors.email = 'Please enter a valid email';
+    }
+
+    // 3. Contact Number Validation (Minimum 10 digits)
+    const digitCount = contact.replace(/\D/g, '').length; 
+    if (!contact.trim()) {
+      newErrors.contact = 'Contact number is required';
+    } else if (digitCount < 10) {
+      newErrors.contact = 'Contact number must be at least 10 digits';
+    }
+    
+    // 4. Why Hire Me Validation (Minimum 20 characters)
+    if (!whyHire.trim()) {
+      newErrors.whyHire = 'Please tell us why we should hire you';
+    } else if (whyHire.trim().length < 20) {
+      newErrors.whyHire = 'Please provide more detail (minimum 20 characters)';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    // Success action
+    markJobAsApplied(job.id);
+    Alert.alert('Success', `Application submitted for ${job.title}`);
+    navigation.goBack();
+  };
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      behavior="padding"
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View>
-          <Formik
-            initialValues={{ name: '', email: '', contact: '', reason: '' }}
-            validationSchema={applicationValidationSchema}
-            onSubmit={(values, { resetForm }) => {
-              Alert.alert('Success', 'Application Submitted!', [
-                {
-                  text: 'Okay',
-                  onPress: () => {
-                    // ⭐ 3. Mark the specific job as applied before navigating away!
-                    if (route.params?.job?.id) {
-                      markJobAsApplied(route.params.job.id);
-                    }
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.title, { color: colors.text }]}>Apply for {job.title}</Text>
 
-                    resetForm();
-                    if (route.params?.fromSaved) {
-                      navigation.reset({
-                        index: 0,
-                        routes: [{ name: 'JobFinder' }],
-                      });
-                    } else {
-                      navigation.goBack();
-                    }
-                  },
-                },
-              ]);
-            }}
-          >
-            {({ handleChange, handleSubmit, values, errors, touched }) => (
-              <View>
-                <TextInput
-                  placeholder="Name"
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: colors.card,
-                      color: colors.text,
-                      borderColor: isDark ? '#fff' : '#000', // ✅ white in dark, black in light
-                      borderWidth: 1,
-                    },
-                  ]}
-                  onChangeText={handleChange('name')}
-                  value={values.name}
-                  placeholderTextColor={colors.text}
-                />
-                {touched.name && <Text style={{ color: colors.text }}>{errors.name}</Text>}
+      {/* Name Field */}
+      <View style={styles.inputGroup}>
+        <Text style={[styles.label, { color: colors.text }]}>Name</Text>
+        <TextInput
+          style={[styles.input, { color: colors.text, borderColor: errors.name ? 'red' : colors.border || '#ccc' }]}
+          placeholder="Your name"
+          placeholderTextColor="#999"
+          value={name}
+          onChangeText={(text) => {
+            setName(text);
+            if (errors.name) setErrors(prev => ({ ...prev, name: undefined }));
+          }}
+        />
+        {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+      </View>
 
-                <TextInput
-                  placeholder="Email"
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: colors.card,
-                      color: colors.text,
-                      borderColor: isDark ? '#fff' : '#000',
-                      borderWidth: 1,
-                    },
-                  ]}
-                  onChangeText={handleChange('email')}
-                  value={values.email}
-                  placeholderTextColor={colors.text}
-                />
-                {touched.email && <Text style={{ color: colors.text }}>{errors.email}</Text>}
+      {/* Email Field */}
+      <View style={styles.inputGroup}>
+        <Text style={[styles.label, { color: colors.text }]}>Email</Text>
+        <TextInput
+          style={[styles.input, { color: colors.text, borderColor: errors.email ? 'red' : colors.border || '#ccc' }]}
+          placeholder="yourname@email.com"
+          placeholderTextColor="#999"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={(text) => {
+            setEmail(text);
+            if (errors.email) setErrors(prev => ({ ...prev, email: undefined }));
+          }}
+        />
+        {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+      </View>
 
-                <TextInput
-                  placeholder="Contact"
-                  keyboardType="numeric"
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: colors.card,
-                      color: colors.text,
-                      borderColor: isDark ? '#fff' : '#000',
-                      borderWidth: 1,
-                    },
-                  ]}
-                  onChangeText={handleChange('contact')}
-                  value={values.contact}
-                  placeholderTextColor={colors.text}
-                />
-                {touched.contact && <Text style={{ color: colors.text }}>{errors.contact}</Text>}
+      {/* Contact Number Field */}
+      <View style={styles.inputGroup}>
+        <Text style={[styles.label, { color: colors.text }]}>Contact Number</Text>
+        <TextInput
+          style={[styles.input, { color: colors.text, borderColor: errors.contact ? 'red' : colors.border || '#ccc' }]}
+          placeholder="e.g. 09123456789"
+          placeholderTextColor="#999"
+          keyboardType="phone-pad"
+          value={contact}
+          onChangeText={(text) => {
+            setContact(text);
+            if (errors.contact) setErrors(prev => ({ ...prev, contact: undefined }));
+          }}
+        />
+        {errors.contact && <Text style={styles.errorText}>{errors.contact}</Text>}
+      </View>
 
-                <TextInput
-                  placeholder="Why should we hire you?"
-                  multiline
-                  style={[
-                    styles.input,
-                    { height: 100, backgroundColor: colors.card, color: colors.text, borderColor: isDark ? '#fff' : '#000', borderWidth: 1 },
-                  ]}
-                  onChangeText={handleChange('reason')}
-                  value={values.reason}
-                  placeholderTextColor={colors.text}
-                />
-                {touched.reason && <Text style={{ color: colors.text }}>{errors.reason}</Text>}
+      {/* Why Hire You Field */}
+      <View style={styles.inputGroup}>
+        <Text style={[styles.label, { color: colors.text }]}>Why should we hire you?</Text>
+        <TextInput
+          style={[
+            styles.input, 
+            styles.textArea, 
+            { color: colors.text, borderColor: errors.whyHire ? 'red' : colors.border || '#ccc' }
+          ]}
+          placeholder="Tell us about your strengths (Min. 20 characters)..."
+          placeholderTextColor="#999"
+          multiline={true}
+          numberOfLines={4}
+          textAlignVertical="top"
+          value={whyHire}
+          onChangeText={(text) => {
+            setWhyHire(text);
+            if (errors.whyHire) setErrors(prev => ({ ...prev, whyHire: undefined }));
+          }}
+        />
+        {errors.whyHire && <Text style={styles.errorText}>{errors.whyHire}</Text>}
+      </View>
 
-                <Pressable
-                  style={[styles.button, { backgroundColor: '#28a745' }]} // ✅ green button stays same
-                  onPress={handleSubmit as any}
-                >
-                  <Text style={[styles.buttonText, { color: '#fff' }]}>Submit</Text>
-                </Pressable>
-              </View>
-            )}
-          </Formik>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+      <Pressable 
+        style={[styles.submitButton, { backgroundColor: colors.primary || '#28a745' }]} 
+        onPress={handleApply}
+      >
+        <Text style={styles.submitButtonText}>Submit Application</Text>
+      </Pressable>
+
+      <View style={{ height: 40 }} />
+    </ScrollView>
   );
 };
 
