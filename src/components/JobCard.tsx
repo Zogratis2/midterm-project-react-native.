@@ -65,14 +65,17 @@ const JobCard: React.FC<Props> = ({ job, isSaved, fromSavedScreen }) => {
       <Text style={{ color: textColor }}>{job.company}</Text>
       <Text style={{ color: textColor }}>{job.salary}</Text>
 
-      <View style={{ marginTop: 10 }}>
+      {/* ⭐ CHANGED: Added flexDirection row and gap here so they sit side-by-side! */}
+      <View style={{ marginTop: 15, flexDirection: 'row', gap: 10, justifyContent: 'space-between' }}>
+        
         {/* Save / Remove / Saved Button */}
         <Pressable
-          style={[styles.button, { backgroundColor: buttonColor }]}
+          // ⭐ CHANGED: Added flex: 1 so it takes up half the space evenly
+          style={[styles.button, { backgroundColor: buttonColor, flex: 1 }]}
           onPress={handlePress}
           // ⭐ REMOVED the disabled prop so the button intercepts the tap
         >
-          <Text style={[styles.buttonText, { color: '#ffffff' }]}>{buttonText}</Text>
+          <Text style={[styles.buttonText, { color: '#ffffff', textAlign: 'center' }]}>{buttonText}</Text>
         </Pressable>
 
         {/* Apply Button */}
@@ -81,8 +84,9 @@ const JobCard: React.FC<Props> = ({ job, isSaved, fromSavedScreen }) => {
             styles.button, 
             { 
               backgroundColor: hasApplied ? '#6c757d' : '#28a745', 
-              marginTop: 8,
-              opacity: hasApplied ? 0.6 : 1 
+              // ⭐ REMOVED marginTop: 8 since they are no longer stacked
+              opacity: hasApplied ? 0.6 : 1,
+              flex: 1 // ⭐ CHANGED: Added flex: 1 so it takes up the other half!
             }
           ]}
           onPress={() => {
@@ -93,10 +97,11 @@ const JobCard: React.FC<Props> = ({ job, isSaved, fromSavedScreen }) => {
           }}
           // ⭐ REMOVED the disabled prop so the button intercepts the tap
         >
-          <Text style={[styles.buttonText, { color: '#ffffff' }]}>
+          <Text style={[styles.buttonText, { color: '#ffffff', textAlign: 'center' }]}>
             {hasApplied ? 'Applied' : 'Apply'}
           </Text>
         </Pressable>
+        
       </View>
     </Pressable>
   );

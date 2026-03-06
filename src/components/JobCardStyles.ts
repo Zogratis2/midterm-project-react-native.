@@ -18,11 +18,13 @@ export default StyleSheet.create({
   },
   button: {
     padding: 10,
-    marginTop: 8,
+    // ⭐ Removed marginTop: 8 since the parent row container now handles the spacing
     alignItems: 'center',
+    justifyContent: 'center', // ⭐ Added this to ensure the text stays perfectly vertically centered
     borderRadius: 5,
   },
   buttonText: {
-    // remove color here — use colors.text from ThemeContext
+    // remove color here — use colors.text from ThemeContext (or inline as you have it in JobCard.tsx)
+    fontWeight: '600', // ⭐ Optional: Makes the button text pop a little more!
   },
 });
