@@ -69,26 +69,34 @@ const SavedJobsScreen = () => {
           </Text>
         </View>
       ) : (
-        <FlatList
-          data={paginatedSavedJobs} 
-          keyExtractor={item => item.id.toString()}
-          renderItem={({ item }) => <JobCard job={item} isSaved={true} fromSavedScreen={true} />}
-          contentContainerStyle={{ padding: 10, paddingBottom: 20 }}
-          style={{ flex: 1 }} 
-          // ⭐ Pagination is back inside the FlatList so it scrolls naturally
-          ListFooterComponent={renderPagination}
-        />
+        <>
+          {/* ⭐ The Job Counter Header (Smaller text, tighter spacing) */}
+          <View style={{ paddingHorizontal: 10, paddingTop: 10, paddingBottom: 0 }}>
+            <Text style={{ fontSize: 15, fontWeight: '600', color: colors.text }}>
+              {savedJobs.length} Saved Job{savedJobs.length !== 1 ? 's' : ''}
+            </Text>
+          </View>
+
+          <FlatList
+            data={paginatedSavedJobs} 
+            keyExtractor={item => item.id.toString()}
+            renderItem={({ item }) => <JobCard job={item} isSaved={true} fromSavedScreen={true} />}
+            contentContainerStyle={{ padding: 10, paddingBottom: 20 }}
+            style={{ flex: 1 }} 
+            ListFooterComponent={renderPagination}
+          />
+        </>
       )}
 
-      {/* ⭐ Bottom Navigation Footer (Stays fixed at the very bottom) */}
+      {/* ⭐ Bottom Navigation Footer */}
       <View style={[localStyles.navFooter, { backgroundColor: colors.card, borderTopColor: colors.border || '#e0e0e0' }]}>
         <Pressable style={localStyles.navButton} onPress={() => navigation.navigate('JobFinder')}>
-          <Text style={{ fontSize: 22 }}>🔍</Text>
+          <Text style={{ fontSize: 18 }}>🔍</Text>
           <Text style={[localStyles.navText, { color: colors.text }]}>Jobs</Text>
         </Pressable>
         
         <Pressable style={localStyles.navButton} onPress={() => navigation.navigate('SavedJobs')}>
-          <Text style={{ fontSize: 22 }}>⭐</Text>
+          <Text style={{ fontSize: 18 }}>⭐</Text>
           <Text style={[localStyles.navText, { color: '#007bff' }]}>Saved</Text>
         </Pressable>
       </View>
@@ -123,13 +131,15 @@ const localStyles = StyleSheet.create({
     borderTopWidth: 1,
   },
   navButton: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     flex: 1,
   },
   navText: {
-    fontSize: 12,
+    fontSize: 16,
     fontWeight: '600',
-    marginTop: 4,
+    marginLeft: 8,
   }
 });
 
