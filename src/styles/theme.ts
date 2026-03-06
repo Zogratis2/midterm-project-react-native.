@@ -22,16 +22,16 @@ export const darkTheme = {
   background: '#121212',
   text: '#ffffff',
   card: '#1e1e1e',
-  button: '#bb86fc',
+  button: '#007bff',
   border: '#333333',
   
   colors: {
-    primary: '#bb86fc', // Required
+    primary: '#007bff', // Required
     background: '#121212', // Required
     card: '#1e1e1e', // Required
     text: '#ffffff', // Required
     border: '#333333', // Required
     notification: '#ff453a', // Required
-    button: '#bb86fc',
+    button: '#007bff',
   }
 };

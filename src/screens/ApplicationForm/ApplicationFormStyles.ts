@@ -5,10 +5,22 @@ export default StyleSheet.create({
     flex: 1,
     padding: 20,
   },
-  title: {
-    fontSize: 22,
+  titleContainer: {
+    marginBottom: 25,
+    borderBottomWidth: 1,
+    paddingBottom: 15,
+    borderBottomColor: '#eee',
+  },
+  applyingForLabel: {
+    fontSize: 14,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    opacity: 0.7,
+    marginBottom: 4,
+  },
+  jobTitle: {
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
   },
   inputGroup: {
     marginBottom: 18,

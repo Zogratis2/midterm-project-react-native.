@@ -3,7 +3,7 @@ import { View, Text, TextInput, Pressable, ScrollView, Alert } from 'react-nativ
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useThemeContext } from '../../context/ThemeContext';
 import { useJobs } from '../../context/JobsContext';
-import styles from './ApplicationFormStyles'; // ⭐ Importing your clean styles!
+import styles from './ApplicationFormStyles'; 
 
 const ApplicationFormScreen = () => {
   const route = useRoute<any>();
@@ -30,19 +30,14 @@ const ApplicationFormScreen = () => {
   const handleApply = () => {
     let newErrors: any = {};
 
-    // 1. Name Validation
-    if (!name.trim()) {
-      newErrors.name = 'Name is required';
-    }
+    if (!name.trim()) newErrors.name = 'Name is required';
     
-    // 2. Email Validation
     if (!email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!email.includes('@')) {
       newErrors.email = 'Please enter a valid email';
     }
 
-    // 3. Contact Number Validation (Minimum 10 digits)
     const digitCount = contact.replace(/\D/g, '').length; 
     if (!contact.trim()) {
       newErrors.contact = 'Contact number is required';
@@ -50,7 +45,6 @@ const ApplicationFormScreen = () => {
       newErrors.contact = 'Contact number must be at least 10 digits';
     }
     
-    // 4. Why Hire Me Validation (Minimum 20 characters)
     if (!whyHire.trim()) {
       newErrors.whyHire = 'Please tell us why we should hire you';
     } else if (whyHire.trim().length < 20) {
@@ -62,15 +56,21 @@ const ApplicationFormScreen = () => {
       return;
     }
 
-    // Success action
     markJobAsApplied(job.id);
-    Alert.alert('Success', `Application submitted for ${job.title}`);
+    Alert.alert('Success', `Application submitted for ${job.title.split('(')[0].trim()}`);
     navigation.goBack();
   };
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.text }]}>Apply for {job.title}</Text>
+      
+      {/* Header: Displays title, stripping out everything after parentheses */}
+      <View style={styles.titleContainer}>
+        <Text style={[styles.applyingForLabel, { color: colors.text }]}>Applying for:</Text>
+        <Text style={[styles.jobTitle, { color: colors.text }]}>
+          {job.title.split('(')[0].trim()}
+        </Text>
+      </View>
 
       {/* Name Field */}
       <View style={styles.inputGroup}>
