@@ -55,7 +55,6 @@ const JobFinderScreen = () => {
     if (filteredJobs.length === 0) return null;
 
     return (
-      // ⭐ Fixed Footer Styling
       <View style={[localStyles.paginationContainer, { backgroundColor: colors.background, borderTopColor: colors.border || '#e0e0e0' }]}>
         <Pressable 
           style={[localStyles.pageButton, { backgroundColor: currentPage === 1 ? '#cccccc' : '#007bff' }]}
@@ -90,27 +89,7 @@ const JobFinderScreen = () => {
         inputTextColor={colors.text}
       />
 
-      <Pressable
-        style={{
-          backgroundColor: '#007bff',
-          padding: 12,
-          marginHorizontal: 15,
-          marginBottom: 10,
-          borderRadius: 8,
-          alignItems: 'center',
-          justifyContent: 'center',
-          elevation: 2, 
-          shadowColor: '#000', 
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.2,
-          shadowRadius: 1.5,
-        }}
-        onPress={() => navigation.navigate('SavedJobs')}
-      >
-        <Text style={{ color: '#ffffff', fontWeight: 'bold', fontSize: 16 }}>
-          View Saved Jobs ({savedJobs ? savedJobs.length : 0})
-        </Text>
-      </Pressable>
+      {/* ⭐ The old blue View Saved Jobs button was removed from here */}
 
       <FlatList
         data={paginatedJobs}
@@ -123,12 +102,24 @@ const JobFinderScreen = () => {
           return <JobCard job={item} isSaved={isAlreadySaved} />;
         }}
         contentContainerStyle={{ paddingBottom: 20 }}
-        style={{ flex: 1 }} // ⭐ Ensure FlatList takes available space, pushing pagination down
-        // ListFooterComponent={renderPagination} <-- ⭐ REMOVED from here
+        style={{ flex: 1 }} 
+        // ⭐ Pagination is back inside the FlatList so it scrolls naturally
+        ListFooterComponent={renderPagination} 
       />
 
-      {/* ⭐ ADDED here so it sticks to the bottom! */}
-      {renderPagination()} 
+      {/* ⭐ Bottom Navigation Footer (Stays fixed at the very bottom) */}
+      <View style={[localStyles.navFooter, { backgroundColor: colors.card, borderTopColor: colors.border || '#e0e0e0' }]}>
+        <Pressable style={localStyles.navButton} onPress={() => navigation.navigate('JobFinder')}>
+          <Text style={{ fontSize: 22 }}>🔍</Text>
+          <Text style={[localStyles.navText, { color: '#007bff' }]}>Jobs</Text>
+        </Pressable>
+        
+        <Pressable style={localStyles.navButton} onPress={() => navigation.navigate('SavedJobs')}>
+          <Text style={{ fontSize: 22 }}>⭐</Text>
+          <Text style={[localStyles.navText, { color: colors.text }]}>Saved</Text>
+        </Pressable>
+      </View>
+
     </View>
   );
 };
@@ -140,7 +131,7 @@ const localStyles = StyleSheet.create({
     alignItems: 'center', 
     paddingVertical: 15, 
     paddingHorizontal: 20,
-    borderTopWidth: 1, // Adds a visual break from the scrolling list
+    marginTop: 10, // Added a little margin so it doesn't touch the last card
   },
   pageButton: {
     paddingVertical: 10,
@@ -150,6 +141,22 @@ const localStyles = StyleSheet.create({
   pageButtonText: {
     color: '#ffffff',
     fontWeight: 'bold',
+  },
+  navFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 12,
+    paddingBottom: 20, 
+    borderTopWidth: 1,
+  },
+  navButton: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  navText: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 4,
   }
 });
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, FlatList, Text, Pressable, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useJobs } from '../../context/JobsContext';
 import JobCard from '../../components/JobCard';
 import styles from './SavedJobsStyles';
@@ -10,6 +11,7 @@ const ITEMS_PER_PAGE = 5;
 const SavedJobsScreen = () => {
   const { savedJobs } = useJobs();
   const { colors } = useThemeContext(); 
+  const navigation = useNavigation<any>();
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -29,8 +31,7 @@ const SavedJobsScreen = () => {
     if (savedJobs.length <= ITEMS_PER_PAGE) return null; 
 
     return (
-      // ⭐ Fixed Footer Styling
-      <View style={[localStyles.paginationContainer, { backgroundColor: colors.background, borderTopColor: colors.border || '#e0e0e0' }]}>
+      <View style={[localStyles.paginationContainer, { backgroundColor: colors.background }]}>
         <Pressable 
           style={[localStyles.pageButton, { backgroundColor: currentPage === 1 ? '#cccccc' : '#007bff' }]}
           disabled={currentPage === 1}
@@ -56,6 +57,8 @@ const SavedJobsScreen = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background, flex: 1 }]}>
+      
+      {/* Main Content Area */}
       {savedJobs.length === 0 ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <Text style={{ color: colors.text, fontSize: 18, fontWeight: '500' }}>
@@ -66,19 +69,30 @@ const SavedJobsScreen = () => {
           </Text>
         </View>
       ) : (
-        <>
-          <FlatList
-            data={paginatedSavedJobs} 
-            keyExtractor={item => item.id.toString()}
-            renderItem={({ item }) => <JobCard job={item} isSaved={true} fromSavedScreen={true} />}
-            contentContainerStyle={{ padding: 10, paddingBottom: 20 }}
-            style={{ flex: 1 }} // ⭐ Ensure FlatList pushes the footer down
-          />
-          
-          {/* ⭐ Added outside the FlatList */}
-          {renderPagination()}
-        </>
+        <FlatList
+          data={paginatedSavedJobs} 
+          keyExtractor={item => item.id.toString()}
+          renderItem={({ item }) => <JobCard job={item} isSaved={true} fromSavedScreen={true} />}
+          contentContainerStyle={{ padding: 10, paddingBottom: 20 }}
+          style={{ flex: 1 }} 
+          // ⭐ Pagination is back inside the FlatList so it scrolls naturally
+          ListFooterComponent={renderPagination}
+        />
       )}
+
+      {/* ⭐ Bottom Navigation Footer (Stays fixed at the very bottom) */}
+      <View style={[localStyles.navFooter, { backgroundColor: colors.card, borderTopColor: colors.border || '#e0e0e0' }]}>
+        <Pressable style={localStyles.navButton} onPress={() => navigation.navigate('JobFinder')}>
+          <Text style={{ fontSize: 22 }}>🔍</Text>
+          <Text style={[localStyles.navText, { color: colors.text }]}>Jobs</Text>
+        </Pressable>
+        
+        <Pressable style={localStyles.navButton} onPress={() => navigation.navigate('SavedJobs')}>
+          <Text style={{ fontSize: 22 }}>⭐</Text>
+          <Text style={[localStyles.navText, { color: '#007bff' }]}>Saved</Text>
+        </Pressable>
+      </View>
+
     </View>
   );
 };
@@ -90,7 +104,7 @@ const localStyles = StyleSheet.create({
     alignItems: 'center', 
     paddingVertical: 15, 
     paddingHorizontal: 20,
-    borderTopWidth: 1,
+    marginTop: 10,
   },
   pageButton: {
     paddingVertical: 10,
@@ -100,6 +114,22 @@ const localStyles = StyleSheet.create({
   pageButtonText: {
     color: '#ffffff',
     fontWeight: 'bold',
+  },
+  navFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 12,
+    paddingBottom: 20, 
+    borderTopWidth: 1,
+  },
+  navButton: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  navText: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 4,
   }
 });
 
